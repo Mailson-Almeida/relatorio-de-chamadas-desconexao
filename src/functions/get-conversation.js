@@ -1,4 +1,5 @@
 const platformClient = require ('purecloud-platform-client-v2');
+const getYesterdayInterval = require('./get-yesterday');
 const conversationApi = new platformClient.ConversationsApi();
 
 async function getConversations (){
@@ -14,7 +15,7 @@ async function getConversations (){
             "pageNumber": pageNumber
           },
           "order": "asc",
-          "interval": "2024-04-08T00:00:00.000Z/2024-04-08T23:59:59.000Z",
+          "interval": getYesterdayInterval(),
           "conversationFilters": [
             {
               "clauses": [
@@ -35,9 +36,9 @@ async function getConversations (){
     
     try {
         const conversations = await conversationApi.postAnalyticsConversationsDetailsQuery(body);
-        pageCount = conversations.totalHits/100
+        pageCount = Math.ceil(conversations.totalHits/body.paging.pageSize);
         while(pageNumber <= pageCount){
-            dayConversationList.push(...conversations.conversations);
+            dayConversationList.push(...conversations.conversations || []);
             pageNumber = pageNumber + 1
             body.pageNumber = pageNumber
         }

@@ -1,3 +1,4 @@
+const { id } = require('date-fns/locale');
 const platformClient = require ('purecloud-platform-client-v2');
 const usersApi = new platformClient.UsersApi();
 
@@ -31,16 +32,20 @@ async function getActiveUsers (){
     }
 }
 
-// async function getUsersName (userList){
 
-//     let usersNameList = [];
-//     const activeUsers = getActiveUsers();
-//     usersNameList = activeUsers.filter(userList.some(agent =>{
-//         if(agent.participanstId === userList.id){
-//             return userList.name;
-//         }
-//     }));
-//     return usersNameList
-// }
 
-module.exports = getActiveUsers
+
+function getUsersName (id, users){
+
+const result = users.filter(userName =>{
+  if(userName.id === id){
+    return userName.name
+  }
+})[0].name
+
+return result
+};
+
+
+
+module.exports = { getActiveUsers, getUsersName }

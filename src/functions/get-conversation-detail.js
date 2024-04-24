@@ -5,17 +5,14 @@ const getTrasnferredConversations = require('./get-transferred-conversations');
 
 async function getObjectDisconnection (){
     const conversationsObject = await getConversations();
-
     const objectConstrution = conversationsObject.map(objConversation => {
         return {
             idConversation_genesys: objConversation.conversationId,
             date: objConversation.conversationStart,
             client: objConversation.participants[0].sessions[0].ani,
-            agent_name: objConversation.participants.filter(participant =>{ //utilizar o findlastindex para conseguir o ultimo participant
-                if(participant.purpose === 'agent'){
-                    return participant
-                }
-            })[0].userId,
+            agent_id: objConversation.participants
+            .filter((participant) => participant.purpose === 'agent')
+            .reverse()[0].userId,
             direction: objConversation.originatingDirection,
             flow: objConversation.participants.filter(flow =>{
                 return flow.purpose ==='acd'
@@ -60,7 +57,7 @@ async function getAlertDisconnection (){
             idConversation_genesys: ObjConversationAlert.conversationId,
             date: ObjConversationAlert.conversationStart,
             client: ObjConversationAlert.participants[0].sessions[0].ani,
-            agent_name: ObjConversationAlert.participants.filter(participant =>{
+            agent_id: ObjConversationAlert.participants.filter(participant =>{
                 if(participant.purpose === 'agent'){
                     return participant
                 }
@@ -185,5 +182,21 @@ async function getTransferredDisconnection (){
     return objTransferredConversations
 }
 
+function tagDisconnection (disconnectionType){
+    
+    if(disconnectionType ==='peer'){
+        return 'Cliente'
+    }
 
-module.exports = {getObjectDisconnection, getAlertDisconnection, getTransferredDisconnection}
+    if(disconnectionType === 'client'){
+        return 'Agente'
+    }
+
+    if(disconnectionType === 'endpoint'){
+        return 'Erro'
+    }
+
+
+}
+
+module.exports = {getObjectDisconnection, getAlertDisconnection, getTransferredDisconnection, tagDisconnection}

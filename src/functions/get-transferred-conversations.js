@@ -1,5 +1,6 @@
 const platformClient = require ("purecloud-platform-client-v2");
 const conversationApi = new platformClient.AnalyticsApi();
+const getYesterdayInterval = require('./get-yesterday')
 
       async function getTrasnferredConversations (){
 
@@ -8,29 +9,36 @@ const conversationApi = new platformClient.AnalyticsApi();
         let dayConversationList = [];
       
           let body = {
-            "interval": "2024-04-08T00:00:00.000Z/2024-04-08T23:59:59.000Z",
+            "order": "asc",
+            "orderBy": "conversationStart",
+            "paging": {
+              "pageSize": 100,
+              "pageNumber": 1
+            },
             "conversationFilters": [
               {
                 "type": "and",
-                "predicates": [
+                "clauses": [
                   {
-                    "metric": "nTransferred",
-                    "operator": "exists"
+                    "type": "and",
+                    "predicates": [
+                      {
+                        "metric": "nTransferred",
+                        "operator": "exists"
+                      }
+                    ]
                   }
                 ]
               }
             ],
-            "paging": {
-              "pageSize": 100,
-              "pageNumber": pageNumber
-            }
+            "interval": getYesterdayInterval(),
           };
           
           try {
               const conversations = await conversationApi.postAnalyticsConversationsDetailsQuery(body);
-              pageCount = conversations.totalHits/100
+              pageCount = Math.ceil(conversations.totalHits/body.paging.pageSize);
               while(pageNumber <= pageCount){
-                  dayConversationList.push(...conversations.conversations);
+                  dayConversationList.push(...(conversations.conversations) || []);
                   pageNumber = pageNumber + 1
                   body.pageNumber = pageNumber
               }

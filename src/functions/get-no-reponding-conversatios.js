@@ -1,5 +1,6 @@
 
 const platformClient = require ("purecloud-platform-client-v2");
+const getYesterdayInterval = require("./get-yesterday");
 const conversationApi = new platformClient.AnalyticsApi();
 
       async function getNoRepondingConversations (){
@@ -9,7 +10,7 @@ const conversationApi = new platformClient.AnalyticsApi();
         let dayConversationList = [];
       
           let body = {
-            "interval": "2024-04-08T00:00:00.000Z/2024-04-08T23:59:59.000Z",
+            "interval": getYesterdayInterval(),
             "conversationFilters": [
               {
                 "type": "and",
