@@ -30,11 +30,12 @@ const conversationApi = new platformClient.AnalyticsApi();
           
           try {
               const conversations = await conversationApi.postAnalyticsConversationsDetailsQuery(body);
-              pageCount = conversations.totalHits/100
+              pageCount = Math.ceil(conversations.totalHits/body.paging.pageSize);
               while(pageNumber <= pageCount){
-                  dayConversationList.push(...conversations.conversations);
+                  const conversations = await conversationApi.postAnalyticsConversationsDetailsQuery(body);
+                  dayConversationList.push(...(conversations.conversations) || []);
                   pageNumber = pageNumber + 1
-                  body.pageNumber = pageNumber
+                  body.paging.pageNumber = pageNumber
               }
               
               return dayConversationList

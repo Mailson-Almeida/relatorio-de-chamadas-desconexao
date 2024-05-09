@@ -39,9 +39,13 @@ function getUsersName (id, users){
 
 const result = users.filter(userName =>{
   if(userName.id === id){
-    return userName.name
+    return userName
   }
-})[0].name
+}).map(nome => {
+  if(nome.name){
+    return nome.name;
+  }
+})[0]
 
 return result
 };

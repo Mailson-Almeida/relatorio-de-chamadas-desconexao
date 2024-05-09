@@ -13,7 +13,7 @@ const getYesterdayInterval = require('./get-yesterday')
             "orderBy": "conversationStart",
             "paging": {
               "pageSize": 100,
-              "pageNumber": 1
+              "pageNumber": pageNumber
             },
             "conversationFilters": [
               {
@@ -38,9 +38,10 @@ const getYesterdayInterval = require('./get-yesterday')
               const conversations = await conversationApi.postAnalyticsConversationsDetailsQuery(body);
               pageCount = Math.ceil(conversations.totalHits/body.paging.pageSize);
               while(pageNumber <= pageCount){
+                  const conversations = await conversationApi.postAnalyticsConversationsDetailsQuery(body);
                   dayConversationList.push(...(conversations.conversations) || []);
                   pageNumber = pageNumber + 1
-                  body.pageNumber = pageNumber
+                  body.paging.pageNumber = pageNumber
               }
               
               return dayConversationList
