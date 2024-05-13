@@ -1,17 +1,15 @@
 const knex = require("./connections/connection");
-const getStep = require('./disconnection-report')
-
 const executeRPA = async () => {
         const startTime = new Date();
-        startTime.setTime(startTime.getTime() - (3 * 60 * 60 * 1000));
-        const disconnectTypeAgents = require('./disconnection-report');
+        startTime.setTime(startTime.getTime());
+        const {disconnectTypeAgents, getStep} = require('./disconnection-report');
     try {
 
         console.log("Executando automação RPA...");
 
         await disconnectTypeAgents();
         const endTime = new Date();
-        endTime.setTime(endTime.getTime() - (3 * 60 * 60 * 1000)); // Ajustando para o fuso do banco
+        endTime.setTime(endTime.getTime()); // Ajustando para o fuso do banco
         const executionTime = endTime.getTime() - startTime.getTime();
         const log_erro = {
             id_rpa: "5",
@@ -20,11 +18,12 @@ const executeRPA = async () => {
             data_fim: endTime,
             tempo_exec_segundos: executionTime
         }
-        await knex('tabelas_padrao.log_execucoes').insert(log_erro).returning();
+        await knex('tabelas_padrao.log_execucoes').insert(log_erro);
         console.log("Automação RPA concluída!");
     } catch (error) {
+        console.log(await disconnectTypeAgents.step)
         const endTime = new Date()
-        endTime.setTime(endTime.getTime() - (3 * 60 * 60 * 1000)); // Ajustando para o fuso do banco
+        endTime.setTime(endTime.getTime()); // Ajustando para o fuso do banco
         const executionTime = endTime.getTime() - startTime.getTime(); // milissegundos 
         const log_execucao = {
             id_rpa: "5",
@@ -33,12 +32,12 @@ const executeRPA = async () => {
             data_fim: endTime,
             tempo_exec_segundos: executionTime,
         }
-        await knex('tabelas_padrao.log_execucoes').insert(log_execucao).returning();
+        await knex('tabelas_padrao.log_execucoes').insert(log_execucao);
         const log_erro = {
-            id_log_execucao: this.tempo_exec_segundos,
-            erro: error,
-            etapa: getStep(),
-            subetapa: ''
+            id_execucao: log_execucao.tempo_exec_segundos,
+            erro: error.message,
+            etapa: await getStep(),
+            subetapa: ""
         }
         await knex('tabelas_padrao.log_erros').insert(log_erro);
         console.error("Erro na execução da automação RPA:", error);

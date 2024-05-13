@@ -1,4 +1,3 @@
-const { id } = require('date-fns/locale');
 const platformClient = require ('purecloud-platform-client-v2');
 const usersApi = new platformClient.UsersApi();
 

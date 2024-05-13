@@ -1,15 +1,13 @@
 require('dotenv').config();
 const authentication = require('../proxies/authenticateApi');
 const CronJob = require("cron").CronJob;
-const {select, insertNoRepondingConversations, insertIntervalConversations, insertDataBanch} = require('./data/query-builder-db');
+const {select, insertNoRepondingConversations, insertDataBanch} = require('./data/query-builder-db');
 const {insertTrasferredConversation } = require('./data/query-builder-db');
+const { getStep } = require('./disconnection-report');
 const getConversations = require('./functions/get-conversation');
 const { getObjectDisconnection, getAlertDisconnection } = require('./functions/get-conversation-detail');
-const { intervalConversations, transferredConversations, alertConversations } = require('./functions/get-table-conversations');
 const getYesterdayInterval = require('./functions/get-yesterday');
 const gerarCSV = require('./utilities/csv-mod');
-
-
 
 
 const clientId = process.env.CLIENT_ID;
@@ -93,9 +91,13 @@ const disconnetionRport  = async () => {
 // await gerarCSV();
 // await insertDataBanch();
 // console.log(await select());
-
+// console.log(await getConversations());
   // setInterval(await insertDataBanch(await intervalConversations()), 5000);
-// console.log(getYesterdayInterval());
+// // console.log(getYesterdayInterval());
+// const conversas = await getConversations();
+
+// console.log(getObjectDisconnection(conversas));
+console.log(await getStep());
 }
 
 disconnetionRport();

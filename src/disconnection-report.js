@@ -6,7 +6,7 @@ const { getQueues } = require('./utilities/get-flow-name');
 const getNoRepondingConversations = require('./functions/get-no-reponding-conversatios');
 const getTrasnferredConversations = require('./functions/get-transferred-conversations');
 const { getAlertDisconnection, getTransferredDisconnection, getObjectDisconnection } = require('./functions/get-conversation-detail');
-const { alertConversations, transferredConversations, intervalConversations } = require('./functions/get-table-conversations');
+const { alertConversations, transferredConversations, intervalConversations } = require('./functions/get-formatted-conversations');
 const { insertNoRepondingConversations, insertTrasferredConversation, insertDataBanch, insertLogErros } = require('./data/query-builder-db');
 
 const clientId = process.env.CLIENT_ID;
@@ -15,81 +15,87 @@ const orgRegion = process.env.ORG_REGION;
 
 let step = '';
 
-async function disconnectTypeAgents () {
-    
-/* ###############################################################################
-    Início etapa de coleta de dados via API  */
+async function disconnectTypeAgents () { 
 
-this.step = 'autenticate';
+///* ###############################################################################
+/// Início etapa de coleta de dados via API 
+
+step = 'autenticate';
 const token = await authenticate(clientId, clientSecret, orgRegion);
 
-this.step = 'getUsers';
+step = 'getUsers';
 const activeUsers =  await getActiveUsers();
 
-this.step = 'getQueue'
+step = 'getQueue'
 const queueList = await getQueues();
 
-this.step = 'getConversationInterval'
+step = 'getConversationInterval';
 const conversationsInterval = await getConversations();
 
-this.step = 'getNotRespondingConversations'
+step = 'getNotRespondingConversations';
 const NotRespondingConversations = await getNoRepondingConversations();
 
-this.step = 'getTransferredConversations'
+step = 'getTransferredConversations';
 const transferedConversations = await getTrasnferredConversations();
 
-/* ###############################################################################
-   Fim da etapa de coleta de dados via API  */
+///* ###############################################################################
+/// Fim da etapa de coleta de dados via API  
 
-/* ###############################################################################
-    Início etapa de seleção e tramento dos dados coletados via API  */
+///* ###############################################################################
+/// Início etapa de seleção e tramento dos dados coletados via API  
 
-this.step = 'getAlertDisconnection'
+step = 'getAlertDisconnection';
 const alertDisconnection = getAlertDisconnection(NotRespondingConversations);
 
-this.step = 'getTransferredDisconnection'
+step = 'getTransferredDisconnection';
 const transferDisconnection = getTransferredDisconnection(transferedConversations);
 
-this.step = 'getObjectDisconnection'
+step = 'getObjectDisconnection';
 const conversationDisconnection = getObjectDisconnection(conversationsInterval);
 
-// /* ###############################################################################
-// Fim etapa de seleção e tramento dos dados coletados via API*/
+
+///* ###############################################################################
+/// Fim etapa de seleção e tramento dos dados coletados via API*/
 
 
-// /* ###############################################################################
-// Início etapa de fromatação dos dados para inserção no banco */
+///* ###############################################################################
+/// Início etapa de fromatação dos dados para inserção no banco */
 
-this.step = 'formatedTableAlertConversation'
-const alertConversationsFormated = alertConversations(alertDisconnection, activeUsers, queueList);
+step = 'formatedAlertConversation';
+const alertConversationsFormatted = alertConversations(alertDisconnection, activeUsers, queueList);
 
-this.step = 'formatedTableTransferredConversations'
-const transferredConversationsFormated = transferredConversations(transferDisconnection, activeUsers, queueList);
+step = 'formatedTransferredConversations';
+const transferredConversationsFormatted = transferredConversations(transferDisconnection, activeUsers, queueList);
 
-this.step = 'formatedIntervalConversations'
-const intervalConversationsFormated = intervalConversations(conversationDisconnection, activeUsers, queueList);
+step = 'formatedIntervalConversations';
+const intervalConversationsFormatted = intervalConversations(conversationDisconnection, activeUsers, queueList);
 
-// /* ###############################################################################
-// Fim etapa de fromatação dos dados para inserção no banco */
+///* ###############################################################################
+// Fim etapa de fromatação dos dados para inserção no banco 
 
 
-// /* ###############################################################################
-// Início etapda inserção no banco de dados*/
+///* ###############################################################################
+// Início etapda inserção no banco de dados
 
-this.step = 'insertAlertConversationsDB'
-await insertNoRepondingConversations(alertConversationsFormated);
+step = 'insertAlertConversationsDB';
+await insertNoRepondingConversations(alertConversationsFormatted);
 
-this.step = 'insertTransfrerredConversationsDB'
-await insertTrasferredConversation(transferredConversationsFormated);
+step = 'insertTransfrerredConversationsDB';
+await insertTrasferredConversation(transferredConversationsFormatted);
 
-this.step = 'insertIntervalConversations'
-await insertDataBanch(intervalConversationsFormated);
+step = 'insertIntervalConversations';
+await insertDataBanch(intervalConversationsFormatted);
 
-}
+///* ###############################################################################
+// Fim etapda inserção no banco de dados
+};
+const getStep = async () => {
+    try {
+        return step;
+    } catch (error) {
+        console.error("Erro ao obter o passo:", error);
+        throw error;
+    }
+};
 
-function getStep  (){
-    return this.step
-}
-
-module.exports = disconnectTypeAgents;
-module.exports = getStep;
+module.exports = {disconnectTypeAgents, getStep};

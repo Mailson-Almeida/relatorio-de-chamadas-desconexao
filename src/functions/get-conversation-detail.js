@@ -19,15 +19,20 @@ function getObjectDisconnection (arrayIntervalConversation){
                     return dnis.sessions[0].ani
                 }
             })[0],
-            agent_id: objConversation.participants
-            .filter((participant) => participant.purpose === 'agent')
-            .reverse()[0].userId,
+            agent_id: objConversation.participants.filter(participant =>{
+                if(participant.purpose === 'agent'){
+                    return participant
+                }
+            }).reverse()[0].userId,
+    
             direction: objConversation.originatingDirection,
-            flow: objConversation.participants.filter(flow =>flow.purpose ==='agent').
+            flow: objConversation.participants.filter(flow =>flow.purpose ==='agent').reverse().
             map(flowName =>flowName.sessions[0].segments[0])[0].queueId,
-            duration: objConversation.participants.filter(participant => participant.purpose === 'agent')
-            .reverse()
-            .filter(agent =>{
+            duration: objConversation.participants.filter(participant =>{
+                if(participant.purpose === 'agent'){
+                    return participant
+                }
+            }).reverse().filter(agent =>{
                 if(agent.sessions[0].segments.some(segment =>{
                     if(segment.segmentType === "wrapup"){
                         return true
@@ -40,11 +45,13 @@ function getObjectDisconnection (arrayIntervalConversation){
                     return metric.value
                 }
             })[0].value,
+
             disconnectType: objConversation.participants.filter(participant =>{
                 if(participant.purpose === 'agent'){
                     return participant
                 }
-            }).reverse().filter(agent =>{
+            }).reverse()
+            .filter(agent =>{
                 if(agent.sessions[0].segments.some(segment =>{
                     if(segment.segmentType === "wrapup"){
                         return true

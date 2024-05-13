@@ -1,4 +1,4 @@
-const { intervalConversations } = require('../functions/get-table-conversations')
+
 const createCsvWriter = require ('csv-writer').createObjectCsvWriter;
 
 

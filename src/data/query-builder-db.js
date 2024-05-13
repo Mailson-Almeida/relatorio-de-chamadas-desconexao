@@ -1,5 +1,5 @@
 const knex = require('../connections/connection');
-const { transferredConversations, alertConversations, intervalConversations } = require('../functions/get-table-conversations');
+const { transferredConversations, alertConversations, intervalConversations } = require('../functions/get-formatted-conversations');
 
 
 async function select(){
@@ -34,17 +34,6 @@ async function insertNoRepondingConversations (arrayChamadas){
     }
 }
 
-// async function insertIntervalConversations (arrayChamadas){
-
-//     try {
-//         const regularConversation = arrayChamadas
-//         const insertConversations = await knex('extracoes_diarias_genesys.relatorio_de_chamadas').insert([...regularConversation]).returning();
-//         return insertConversations;
-//     } catch (error) {
-//         console.log(error.message)
-//     }
-// }
-
 async function insertDataBanch(arrayChamadas) {
     const arrayCalls = arrayChamadas;
     const batchSize = 100; 
@@ -73,16 +62,5 @@ async function insertLogErros( logErro, step){
         console.log('Erro ao inserir dados de log', error.message);
     }
 } 
-// Exemplo de uso da função
-//   const dadosParaInserir = await intervalConversations(); // Aqui você colocaria seus 80 mil objetos
-//   inserirDadosEmLotes(dadosParaInserir)
-//     .then(() => {
-//       console.log('Todos os dados foram inseridos.');
-//       process.exit(0); // Finaliza o processo após a inserção
-//     })
-//     .catch((error) => {
-//       console.error('Erro ao inserir os dados:', error);
-//       process.exit(1); // Finaliza o processo com erro em caso de falha
-//     });
 
 module.exports = {select, insertTrasferredConversation, insertNoRepondingConversations, insertDataBanch, insertLogErros};
